@@ -40,11 +40,15 @@ defmodule Todo.Server do
     |> then(&{:noreply, {list_name, &1}})
   end
 
-  def handle_cast({:update_entry, id, updater}, state) do
-    {:noreply, Todo.List.update_entry(state, id, updater)}
+  def handle_cast({:update_entry, id, updater}, {list_name, list}) do
+    Todo.List.update_entry(list, id, updater)
+    |> tap(&Todo.Database.store(list_name, &1))
+    |> then(&{:noreply, {list_name, &1}})
   end
 
-  def handle_cast({:delete_entry, id}, state) do
-    {:noreply, Todo.List.delete_entry(state, id)}
+  def handle_cast({:delete_entry, id}, {list_name, list}) do
+    Todo.List.delete_entry(list, id)
+    |> tap(&Todo.Database.store(list_name, &1))
+    |> then(&{:noreply, {list_name, &1}})
   end
 end
