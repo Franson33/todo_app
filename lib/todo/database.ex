@@ -9,6 +9,10 @@ defmodule Todo.Database do
   end
 
   def init(_) do
+    {:ok, nil, {:continue, :init}}
+  end
+
+  def handle_continue(:init, _state) do
     File.mkdir_p!(@db_folder)
 
     processes =
@@ -18,7 +22,7 @@ defmodule Todo.Database do
         |> then(fn {:ok, pid} -> {index, pid} end)
       end
 
-    {:ok, processes}
+    {:noreply, processes}
   end
 
   def store(key, data) do
