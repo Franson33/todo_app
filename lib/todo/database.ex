@@ -9,6 +9,8 @@ defmodule Todo.Database do
   end
 
   def init(_) do
+    IO.puts("Strting database server")
+
     {:ok, nil, {:continue, :init}}
   end
 
@@ -57,6 +59,8 @@ defmodule Todo.DatabaseWorker do
   end
 
   def init(db_folder) do
+    IO.puts("Strting database worker")
+
     File.mkdir_p!(db_folder)
 
     {:ok, db_folder}

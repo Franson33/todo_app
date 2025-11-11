@@ -2,6 +2,8 @@ defmodule Todo.Server do
   use GenServer
 
   def init({list_name, initial_entries}) do
+    IO.puts("Strting to-do server for #{list_name}.")
+
     {:ok, {list_name, initial_entries}, {:continue, :init}}
   end
 
