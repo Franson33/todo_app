@@ -4,7 +4,7 @@ defmodule Todo.Cache do
   def init(_) do
     IO.puts("Starting to-do cache.")
 
-    Todo.Database.start()
+    Todo.Database.start_link()
     {:ok, %{}}
   end
 
@@ -22,7 +22,7 @@ defmodule Todo.Cache do
         {:reply, todo_server, todo_servers}
 
       :error ->
-        Todo.Server.start(list_name, initial_entries)
+        Todo.Server.start_link(list_name, initial_entries)
         |> then(fn {:ok, new_server} ->
           {:reply, new_server, Map.put(todo_servers, list_name, new_server)}
         end)

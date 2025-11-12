@@ -12,8 +12,8 @@ defmodule Todo.Server do
     |> then(&{:noreply, {list_name, &1}})
   end
 
-  def start(list_name, initial_entries \\ []) do
-    GenServer.start(__MODULE__, {list_name, initial_entries})
+  def start_link(list_name, initial_entries \\ []) do
+    GenServer.start_link(__MODULE__, {list_name, initial_entries})
   end
 
   def entries(pid, date) do
