@@ -4,7 +4,6 @@ defmodule Todo.Cache do
   def init(_) do
     IO.puts("Starting to-do cache.")
 
-    Todo.Database.start_link()
     {:ok, %{}}
   end
 
