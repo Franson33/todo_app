@@ -5,6 +5,8 @@ defmodule Todo.Database do
   @pool_size 3
 
   def start_link do
+    IO.inspect("Strting database supervisor")
+
     File.mkdir_p!(@db_folder)
 
     Enum.map(1..@pool_size, &worker_spec/1)
