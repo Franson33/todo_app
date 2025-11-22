@@ -12,7 +12,7 @@ defmodule Todo.Server do
     |> then(&{:noreply, {list_name, &1}})
   end
 
-  def start_link(list_name, initial_entries \\ []) do
+  def start_link({list_name, initial_entries}) do
     GenServer.start_link(__MODULE__, {list_name, initial_entries}, name: via_tuple(list_name))
   end
 
