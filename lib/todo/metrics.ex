@@ -1,0 +1,22 @@
+defmodule Todo.Metrics do
+  use Task
+
+  def start_link(_arg), do: Task.start_link(&loop/0)
+
+  defp loop do
+    :timer.seconds(10) |> Process.sleep()
+    Task.start_link(&do_collect/0)
+    loop()
+  end
+
+  defp do_collect do
+    collect_metrics() |> IO.inspect()
+  end
+
+  defp collect_metrics do
+    [
+      memory_usage: :erlang.memory(:total),
+      process_count: :erlang.system_info(:process_count)
+    ]
+  end
+end
