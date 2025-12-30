@@ -12,7 +12,10 @@ defmodule Todo.System do
         Todo.ProcessRegistry,
         Todo.Cache,
         Todo.Database,
-        Todo.Web
+        {
+          Plug.Cowboy,
+          plug: Todo.Web, scheme: :http, options: [port: 5454]
+        }
       ],
       strategy: :one_for_one
     )
