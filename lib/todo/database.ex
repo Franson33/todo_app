@@ -1,9 +1,8 @@
 defmodule Todo.Database do
-  @db_folder "./persist"
   @pool_size 3
 
   def child_spec(_) do
-    File.mkdir_p!(@db_folder)
+    File.mkdir_p!(db_folder())
 
     %{
       id: __MODULE__,
@@ -16,7 +15,7 @@ defmodule Todo.Database do
             worker_module: Todo.DatabaseWorker,
             size: @pool_size
           ],
-          [@db_folder]
+          [db_folder()]
         ]
       },
       type: :worker,
@@ -41,6 +40,10 @@ defmodule Todo.Database do
         Todo.DatabaseWorker.get(worker_pid, key)
       end
     )
+  end
+
+  defp db_folder do
+    Application.fetch_env!(:todo_app, :db_folder)
   end
 end
 

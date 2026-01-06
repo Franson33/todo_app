@@ -14,7 +14,9 @@ defmodule Todo.System do
         Todo.Database,
         {
           Plug.Cowboy,
-          plug: Todo.Web, scheme: :http, options: [port: 5454]
+          plug: Todo.Web,
+          scheme: :http,
+          options: [port: Application.fetch_env!(:todo_app, :http_port)]
         }
       ],
       strategy: :one_for_one
