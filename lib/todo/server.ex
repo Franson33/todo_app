@@ -21,7 +21,7 @@ defmodule Todo.Server do
   end
 
   def start_link({list_name, initial_entries}) do
-    GenServer.start_link(__MODULE__, {list_name, initial_entries}, name: via_tuple(list_name))
+    GenServer.start_link(__MODULE__, {list_name, initial_entries}, name: global_name(list_name))
   end
 
   def entries(pid, date) do
@@ -62,7 +62,14 @@ defmodule Todo.Server do
     |> then(&{:noreply, {list_name, &1}, @expiry_idle_timeout})
   end
 
-  defp via_tuple(name) do
-    Todo.ProcessRegistry.via_tuple({__MODULE__, name})
+  def whereis(name) do
+    case :global.whereis_name({__MODULE__, name}) do
+      :undefined -> nil
+      pid -> pid
+    end
+  end
+
+  defp global_name(name) do
+    {:global, {__MODULE__, name}}
   end
 end

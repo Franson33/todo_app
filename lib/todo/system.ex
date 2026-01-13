@@ -9,7 +9,6 @@ defmodule Todo.System do
     Supervisor.init(
       [
         Todo.Metrics,
-        Todo.ProcessRegistry,
         Todo.Cache,
         Todo.Database,
         {
