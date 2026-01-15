@@ -25,6 +25,19 @@ defmodule Todo.Database do
   end
 
   def store(key, data) do
+    {_result, bad_nodes} =
+      :rpc.multicall(
+        __MODULE__,
+        :store_local,
+        [key, data],
+        :timer.seconds(5)
+      )
+
+    Enum.each(bad_nodes, &IO.puts("Store failed on node #{&1}"))
+    :ok
+  end
+
+  def store_local(key, data) do
     :poolboy.transaction(
       __MODULE__,
       fn worker_pid ->
@@ -43,7 +56,10 @@ defmodule Todo.Database do
   end
 
   defp db_folder do
-    Application.fetch_env!(:todo_app, :db_folder)
+    base = Application.fetch_env!(:todo_app, :db_folder)
+    node = Node.self() |> Atom.to_string()
+
+    Path.join([base, node])
   end
 end
 
@@ -63,36 +79,30 @@ defmodule Todo.DatabaseWorker do
   end
 
   def store(pid, key, data) do
-    GenServer.cast(pid, {:store, key, data})
+    GenServer.call(pid, {:store, key, data})
   end
 
   def get(pid, key) do
     GenServer.call(pid, {:get, key})
   end
 
-  def handle_cast({:store, key, data}, db_folder) do
-    spawn(fn ->
-      key
-      |> file_name(db_folder)
-      |> File.write!(:erlang.term_to_binary(data))
-    end)
+  def handle_call({:store, key, data}, _caller, db_folder) do
+    key
+    |> file_name(db_folder)
+    |> File.write!(:erlang.term_to_binary(data))
 
-    {:noreply, db_folder}
+    {:reply, :ok, db_folder}
   end
 
-  def handle_call({:get, key}, caller, db_folder) do
-    spawn(fn ->
-      key
-      |> file_name(db_folder)
-      |> File.read()
-      |> then(fn
-        {:ok, content} -> :erlang.binary_to_term(content)
-        _ -> nil
-      end)
-      |> then(&GenServer.reply(caller, &1))
+  def handle_call({:get, key}, _caller, db_folder) do
+    key
+    |> file_name(db_folder)
+    |> File.read()
+    |> then(fn
+      {:ok, content} -> :erlang.binary_to_term(content)
+      _ -> nil
     end)
-
-    {:noreply, db_folder}
+    |> then(&{:reply, &1, db_folder})
   end
 
   defp file_name(key, db_folder) do
